@@ -2,7 +2,7 @@ os: linux
 dist: xenial
 environment:
   global:
-  - GIT_NAME: "'Travis Automated Deployment'"
+  - GIT_NAME: 'Travis Automated Deployment'
   - GIT_EMAIL: hyp0th3rmi4@gmail.com
   - GH_REF: git@github.com:IBM/hlf-internals.git
 language: python
@@ -20,7 +20,7 @@ before_install:
 - chmod 600 deploy-key-travis
 - eval `ssh-agent -s`
 - ssh-add deploy-key-travis
-- git config user.name ${GIT_NAME}
-- git config user.emal ${GIT_EMAIL}
-- git remote add gh-token ${GH_REF}
+- git config user.name "${GIT_NAME}"
+- git config user.emal "${GIT_EMAIL}"
+- git remote add gh-token "${GH_REF}"
 
