@@ -8,7 +8,7 @@ install:
 script:
 - mkdocs build
 after_success:
-- if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mkdocs gh-deploy --force; else echo "Pull Request - skipping deployment."; fi"
+- if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then mkdocs gh-deploy --force; else echo "Pull Request - SKIPPING DEPLOYMENT."; fi
 before_install:
 - openssl aes-256-cbc -K $encrypted_e92a2cfd1ea0_key -iv $encrypted_e92a2cfd1ea0_iv
   -in deploy-key-travis.enc -out deploy-key-travis -d
