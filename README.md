@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/IBM/hlf-internals.svg?branch=master)](https://travis-ci.org/IBM/hlf-internals)
 
-This repository contains documentation on the internal architecture of Hyperledger Fabric with focus on the management of chaincode and its life-cycle. This repository is the souce of <https://pages.github.com/IBM/hlf-internals> and the main content is located in the `docs` folder.
+This repository contains documentation on the internal architecture of Hyperledger Fabric with focus on the management of chaincode and its life-cycle. This repository is the souce of <https://ibm.github.io/hlf-internals> and the main content is located in the `docs` folder.
 
 Structure and content:
 
