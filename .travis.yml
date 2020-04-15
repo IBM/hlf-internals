@@ -2,9 +2,9 @@ os: linux
 dist: xenial
 environment:
   global:
-  - GIT_NAME: 'Travis Automated Deployment'
-  - GIT_EMAIL: hyp0th3rmi4@gmail.com
-  - GH_REF: git@github.com:IBM/hlf-internals.git
+    - GIT_NAME='Travis Automated Deployment'
+    - GIT_EMAIL=hyp0th3rmi4@gmail.com
+    - GH_REF=git@github.com:IBM/hlf-internals.git
 language: python
 cache: pip
 python:
