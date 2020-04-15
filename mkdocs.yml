@@ -26,7 +26,7 @@ nav:
   - Interaction Flow:
     - Overview: 'shim-architecture/interaction-flow/overview.md'
     - Aysnchronous Transaction Processing: 'shim-architecture/interaction-flow/transaction-processing.md'
-    - Managing Talk-backs with the Peer: 'shim-architecture/interaction-flow/talk-backs.msd'
+    - Managing Talk-backs with the Peer: 'shim-architecture/interaction-flow/talk-backs.md'
     - Range Queries and Iterators: 'shim-architecture/interaction-flow/range-queries.md'
     - Chaincode Events: 'shim-architecture/interaction-flow/chaincode-events.md'
   - Chaincode Execution Patterns: 'shim-architecture/execution-patterns.md'
