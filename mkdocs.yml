@@ -1,0 +1,46 @@
+site_name: Hyperledger Fabric Internals Documentation
+site_description: This website contains the description of the internal architecture of Hyperledger Fabric.
+site_author: Christian Vecchiola
+repo_url: https://github.ibm.com/christian-vecchiola/hlf-internals
+repo_name: christian-vecchiola/hlf-internals
+docs_dir: docs
+nav:
+- Home: 'index.md'
+- License: 'license.md'
+- Chaincode Management Overview:
+  - Chaincode Execution Model: 'overview/chaincode-execution-model.md'
+  - Peer Operating Modes: 'overview/peer-operating-modes.md'
+  - Secure Networking: 'overview/secure-networking.md'
+- Interaction Protocol: 
+  - Key Components: 'protocol/architecture-components.md'
+  - Interaction Lifecycle: 'protocol/interaction-lifecycle.md'
+  - Messages Exchanged: 'protocol/messages.md'
+- Shim Architecture: 
+  - Overview: 'shim-architecture/index.md'
+  - Components:
+    - Shim: 'shim-architecture/components/shim.md'
+    - Handler: 'shim-architecture/components/handler.md'
+    - ChaincodeStubInterface:  'shim-architecture/components/chaincode-stub-interface.md'
+    - ChaincodeStub: 'shim-architecture/components/chaincode-stub.md'
+    - Other Components: 'shim-architecture/components/other-components.md'
+  - Interaction Flow:
+    - Overview: 'shim-architecture/interaction-flow/overview.md'
+    - Aysnchronous Transaction Processing: 'shim-architecture/interaction-flow/transaction-processing.md'
+    - Managing Talk-backs with the Peer: 'shim-architecture/interaction-flow/talk-backs.msd'
+    - Range Queries and Iterators: 'shim-architecture/interaction-flow/range-queries.md'
+    - Chaincode Events: 'shim-architecture/interaction-flow/chaincode-events.md'
+  - Chaincode Execution Patterns: 'shim-architecture/execution-patterns.md'
+  - Securing the Chaincode Process: 'shim-architecture/security.md'
+- Peer Architecture: 'peer-architecture/index.md'
+- Support for New Languages: 'adding-new-languages/index.md'
+- About: 'about.md'
+theme:
+  name: 'material'
+markdown_extensions:
+  - codehilite
+  - admonition
+plugins:
+  - search
+  - img2fig
+  - git-revision-date-localized:
+      type: datetime
