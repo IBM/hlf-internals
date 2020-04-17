@@ -1,6 +1,6 @@
 # Shim
 
-The shimn is responsible for starting and coordinating the interaction between the `Chaincode` implementation and the peer the process is connected to. The coordination and setup logic is implemented in the [shim.go](https://github.com/hyperledger/fabric-chaincode-go/blob/master/shim/shim.go) and the main method of the package is `shim.Start(Chaincode)`.
+The shim is responsible for starting and coordinating the interaction between the `Chaincode` implementation and the peer the process is connected to. The coordination and setup logic is implemented in the [shim.go](https://github.com/hyperledger/fabric-chaincode-go/blob/master/shim/shim.go) and the main method of the package is `shim.Start(Chaincode)`.
 
 The setup procedure is as follows:
 
