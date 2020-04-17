@@ -1,8 +1,8 @@
 site_name: Hyperledger Fabric Internals Documentation
 site_description: This website contains the description of the internal architecture of Hyperledger Fabric.
 site_author: Christian Vecchiola
-repo_url: https://github.ibm.com/christian-vecchiola/hlf-internals
-repo_name: christian-vecchiola/hlf-internals
+repo_url: https://github.com/IBM/hlf-internals
+repo_name: IBM/hlf-internals
 docs_dir: docs
 nav:
 - Home: 'index.md'
