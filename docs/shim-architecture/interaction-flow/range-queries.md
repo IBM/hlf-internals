@@ -2,7 +2,7 @@
 
 ## Overview
 
-The `ChaincodeStubInterface` exposes several methods that allow smart contract developers to retrieve a sequence of entries. This capability is quite useful as it allows, for instance, the iteration of a range of keys that match a certain criteria or retrieval of the historical changes made to the value associatedd to a key.
+The `ChaincodeStubInterface` exposes several methods that allow smart contract developers to retrieve a sequence of entries. This capability is quite useful as it allows, for instance, the iteration of a range of keys that match a certain criteria or retrieval of the historical changes made to the value associated to a key.
 
 The implementation of this capability relies on _iterators_. These rely upon the already described method for [issuing requests to the peer](talk-backs.md) but may involve multiple requests made to optimise the bandwidth and the consumption of network resources.
 

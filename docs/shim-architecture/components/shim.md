@@ -16,4 +16,4 @@ The chat with the peer is implemented in the `chatWithPeer(chaincodename string,
 - initialising the message and error channels
 - initialising the message receving loop
 
-The shim package also provide another main entry point for the execution of chaincode. This is the the `StartInProc(chaincodename string, stream ClientStream, cc Chaincode)`. This method is used for the execution of system chaincodes within the peer. The logic implemented here, eventually leads to calling `chatWithPeer(...)`. The only difference is the provision of the stream that connects the chaincode to the peer and the resolution of the chaincode name, which in this case is passed as an argument.
+The shim package also provide another main entry point for the execution of chaincode. This is the `StartInProc(chaincodename string, stream ClientStream, cc Chaincode)`. This method is used for the execution of system chaincodes within the peer. The logic implemented here, eventually leads to calling `chatWithPeer(...)`. The only difference is the provision of the stream that connects the chaincode to the peer and the resolution of the chaincode name, which in this case is passed as an argument.
