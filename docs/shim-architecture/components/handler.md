@@ -1,6 +1,6 @@
 # Handler
 
-The chaincode handler is responsible for managing the entire communication protocol with the peer(from the initialisation of the communication to the end) and ultimately for invoking the `Chaincode` interface methods on the configured implementation.
+The chaincode handler is responsible for managing the entire communication protocol with the peer (from the initialisation of the communication to the end) and ultimately for invoking the `Chaincode` interface methods on the configured implementation.
 
 More specifically, the responsibilities of the handler are:
 
@@ -22,7 +22,7 @@ There are three states that define the behaviour of the handler: _created_, _est
 
 ## Initialisation
 
-A new instance of the handler is created by [shim])(shim.md) during setup, via the  `newChaincodeHandler(stream PeerChaincodeStream, cc Chaincode)` method. This method configures the handler with the `Chaincode` implementation, the bidirectional stream, and also initialises the internal data structure required by the handler to operate.
+A new instance of the handler is created by [shim](shim.md) during setup, via the  `newChaincodeHandler(stream PeerChaincodeStream, cc Chaincode)` method. This method configures the handler with the `Chaincode` implementation, the bidirectional stream, and also initialises the internal data structure required by the handler to operate.
 
 The invocation of the method returns a pointer to the `Handler` struct that is shown in the listing below. Upon creation the handler is set to the `created` state.
 
