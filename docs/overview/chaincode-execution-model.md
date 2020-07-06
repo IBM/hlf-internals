@@ -14,4 +14,4 @@ The shim is the component that is responsible to run the smart contract, make it
 
 The figure below, provides a very high-level view of the peer-chaincode interaction.
 
-![Peer Chaincode Interaction Architecture](../images/peer-chaincode-architecture.png)
+![Peer Chaincode Interaction Architecture](../../images/peer-chaincode-architecture.png)
