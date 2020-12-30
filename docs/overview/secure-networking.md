@@ -4,7 +4,7 @@ The Chaincode process and the Peer interact over a GRPC connection, this communi
 
 There are a variety of attacks that may occur if the network is unsecure:
 
-- __Heavesdropping__: made possible by someone spoofing the GRPC connection and observing the invocation of transactions as well as the proposal responses.
+- __Eavesdropping__: made possible by someone spoofing the GRPC connection and observing the invocation of transactions as well as the proposal responses.
 - __Peer Impersonation Attacks__: this can be achieved by altering the configuration of the chaincode process and luring it to connect to a malicious process pretending to be the peer.
 - __Chaincode Impersonation Attacks__: this can be achieved by luring the peer into believing that the connected process is a legitimate chaincode, but instead it is malicious process.
 
