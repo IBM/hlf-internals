@@ -6,7 +6,7 @@ Regardless of the operating modality the chaincode will still be subject to thre
 
 - installation onto the peer
 - instantiation in a channel
-- invocaiton of transactions
+- invocation of transactions
 
 What changes between the two modalities is how the chaincode process is brought to life and who is responsible for its life-cycle.
 
