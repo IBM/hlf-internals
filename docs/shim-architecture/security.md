@@ -45,7 +45,7 @@ In this modality, the parameters passed to the `LoadTLSConfig(...)` are interpre
 - the _root_ certificate passed to the `LoadTLSConfig(...)` function is used to construct the pool of root certificates (i.e. `tlsConfig.RoorCAs`) that the GRPC client should trust to validate the server (i.e. the peer); and
 - the _key_ and _cert_ pair represent the client certificate that the chaincode process will present to the peer to establish the connection. 
 
-The resulting `tls.Config` instance is passed to the connection setup function whichb establishes the GRPC connection with the per and creates a client for the chaincode support service:
+The resulting `tls.Config` instance is passed to the connection setup function which establishes the GRPC connection with the per and creates a client for the chaincode support service:
 
 ```go
 func NewClientConn(address string, tlsConf *tls.Config, kaOpts keepalive.ClientParameters) (*grpc.ClientConn, error) ( ... }
@@ -57,7 +57,7 @@ This mode is not currently used in version 1.4, but it is a preview of future ve
 
 In this modality the configuration parameters for the TLS setup are pulled from the `ChaincodeServer.TLSProps` struct that defines the configuration of the server:
 
-- the _root_ certificate cannot be null and contrinutes to the creation of the pool of certificates that are checked by the server to validate the client certificates provided by the connecting peers (i.e. `tlsConfig.ClientCAs`). These are required and must be valid (i.e. `tlsConfig.ClientAut=tls.RequireAndVerifyClient`); and
+- the _root_ certificate cannot be null and contributes to the creation of the pool of certificates that are checked by the server to validate the client certificates provided by the connecting peers (i.e. `tlsConfig.ClientCAs`). These are required and must be valid (i.e. `tlsConfig.ClientAut=tls.RequireAndVerifyClient`); and
 - the _key_ and _cert_ pair provides access to server certificate that will be presented to the incoming connections to identify the chaincode process.
 
 The resulting `tls.Config` instance is passed to the server setup function that starts the chaincode server:
