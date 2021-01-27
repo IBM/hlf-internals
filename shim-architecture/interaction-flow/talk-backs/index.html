@@ -1,0 +1,978 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="This website contains the description of the internal architecture of Hyperledger Fabric.">
+      
+      
+      
+        <meta name="author" content="Christian Vecchiola">
+      
+      
+      <link rel="shortcut icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.6">
+    
+    
+      
+        <title>Managing Talk-backs with the Peer - Hyperledger Fabric Internals Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.cb6bc1d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.39b8e14a.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+      
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#managing-talk-backs-with-the-peer" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="../../.." title="Hyperledger Fabric Internals Documentation" class="md-header-nav__button md-logo" aria-label="Hyperledger Fabric Internals Documentation">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            Hyperledger Fabric Internals Documentation
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Managing Talk-backs with the Peer
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/IBM/hlf-internals/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    IBM/hlf-internals
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Hyperledger Fabric Internals Documentation" class="md-nav__button md-logo" aria-label="Hyperledger Fabric Internals Documentation">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Hyperledger Fabric Internals Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/IBM/hlf-internals/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    IBM/hlf-internals
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../license/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" >
+      
+      <label class="md-nav__link" for="nav-3">
+        Chaincode Management Overview
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Chaincode Management Overview" data-md-level="1">
+        <label class="md-nav__title" for="nav-3">
+          <span class="md-nav__icon md-icon"></span>
+          Chaincode Management Overview
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../overview/chaincode-execution-model/" class="md-nav__link">
+        Chaincode Execution Model
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../overview/peer-operating-modes/" class="md-nav__link">
+        Peer Operating Modes
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../overview/secure-networking/" class="md-nav__link">
+        Secure Networking
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4" >
+      
+      <label class="md-nav__link" for="nav-4">
+        Interaction Protocol
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Interaction Protocol" data-md-level="1">
+        <label class="md-nav__title" for="nav-4">
+          <span class="md-nav__icon md-icon"></span>
+          Interaction Protocol
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../protocol/architecture-components/" class="md-nav__link">
+        Key Components
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../protocol/interaction-lifecycle/" class="md-nav__link">
+        Interaction Lifecycle
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../protocol/messages/" class="md-nav__link">
+        Messages Exchanged
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
+      
+      <label class="md-nav__link" for="nav-5">
+        Shim Architecture
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Shim Architecture" data-md-level="1">
+        <label class="md-nav__title" for="nav-5">
+          <span class="md-nav__icon md-icon"></span>
+          Shim Architecture
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5-2" type="checkbox" id="nav-5-2" >
+      
+      <label class="md-nav__link" for="nav-5-2">
+        Components
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Components" data-md-level="2">
+        <label class="md-nav__title" for="nav-5-2">
+          <span class="md-nav__icon md-icon"></span>
+          Components
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/shim/" class="md-nav__link">
+        Shim
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/handler/" class="md-nav__link">
+        Handler
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/chaincode-stub-interface/" class="md-nav__link">
+        ChaincodeStubInterface
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/chaincode-stub/" class="md-nav__link">
+        ChaincodeStub
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/other-components/" class="md-nav__link">
+        Other Components
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5-3" type="checkbox" id="nav-5-3" checked>
+      
+      <label class="md-nav__link" for="nav-5-3">
+        Interaction Flow
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Interaction Flow" data-md-level="2">
+        <label class="md-nav__title" for="nav-5-3">
+          <span class="md-nav__icon md-icon"></span>
+          Interaction Flow
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../transaction-processing/" class="md-nav__link">
+        Aysnchronous Transaction Processing
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Managing Talk-backs with the Peer
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Managing Talk-backs with the Peer
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#scope-and-functionalities" class="md-nav__link">
+    Scope and Functionalities
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managing-response-channels" class="md-nav__link">
+    Managing Response Channels
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detecting-responses-from-message-stream" class="md-nav__link">
+    Detecting Responses from Message Stream
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observations" class="md-nav__link">
+    Observations
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../range-queries/" class="md-nav__link">
+        Range Queries and Iterators
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chaincode-events/" class="md-nav__link">
+        Chaincode Events
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../execution-patterns/" class="md-nav__link">
+        Chaincode Execution Patterns
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        Securing the Chaincode Process
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../peer-architecture/" class="md-nav__link">
+        Peer Architecture
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adding-new-languages/" class="md-nav__link">
+        Support for New Languages
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../about/" class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#scope-and-functionalities" class="md-nav__link">
+    Scope and Functionalities
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managing-response-channels" class="md-nav__link">
+    Managing Response Channels
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#detecting-responses-from-message-stream" class="md-nav__link">
+    Detecting Responses from Message Stream
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observations" class="md-nav__link">
+    Observations
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/IBM/hlf-internals/edit/master/docs/shim-architecture/interaction-flow/talk-backs.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="managing-talk-backs-with-the-peer">Managing Talk-backs with the Peer</h1>
+<h2 id="scope-and-functionalities">Scope and Functionalities</h2>
+<p>A common requirement of the smart contract developers is to be able to query the ledger within the context of a transaction, either to reader from or write into it. The design of the smart contract is essentially stateless and therefore, any additional information that does not come with the chaincode arguments must be read from the ledger. The same goes for information that need to be persisted across transaction invocation that is not returned within a transaction proposal response payload.</p>
+<p>Besides, accessing the ledger a smart contract may invoke another chaincode function deployed on the same peer. This invocation is mediated by the peer and therefore requires a communication back to it within the context of a single transaction invocation.</p>
+<h2 id="managing-response-channels">Managing Response Channels</h2>
+<p>The communication  is coordinated through ad-hoc channels that are created for each interaction back to the peer. This coordination is responsibility of the <code>Handler</code> and it is implemented in the method <code>callPeerWithChaincodeMsg(...)</code> shown in the listing below. This method is the common denominator of all the functions that are exposed by the <code>ChaincodeStubInteface</code> that require interaction with the peer.</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">Handler</span><span class="p">)</span> <span class="nx">callPeerWithChaincodeMsg</span><span class="p">(</span>
+    <span class="nx">msg</span> <span class="o">*</span><span class="nx">pb</span><span class="p">.</span><span class="nx">ChaincodeMessage</span><span class="p">,</span>
+    <span class="nx">channelID</span> <span class="kt">string</span><span class="p">,</span>
+    <span class="nx">txid</span> <span class="kt">string</span>
+<span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">pb</span><span class="p">.</span><span class="nx">ChaincodeMessage</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+
+   <span class="nx">respChan</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">h</span><span class="p">.</span><span class="nx">createResponseChannel</span><span class="p">(</span><span class="nx">channelID</span><span class="p">,</span> <span class="nx">txid</span><span class="p">)</span>
+   <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">ChaincodeMessage</span><span class="p">{},</span> <span class="nx">err</span>
+   <span class="p">}</span>
+   <span class="k">defer</span> <span class="nx">h</span><span class="p">.</span><span class="nx">deleteResponseChannel</span><span class="p">(</span><span class="nx">channelID</span><span class="p">,</span> <span class="nx">txid</span><span class="p">)</span>
+   <span class="k">return</span> <span class="nx">h</span><span class="p">.</span><span class="nx">sendReceive</span><span class="p">(</span><span class="nx">msg</span><span class="p">,</span> <span class="nx">respChan</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>There are a couple of things here to observe:</p>
+<ul>
+<li>the method creates a <em>response channel</em> which is a go structure used to synchronise different go-routines and pass information among them;</li>
+<li>it then invokes the method <code>sendReceive(...)</code> waits until a response from the peer is received; and</li>
+<li>it finally deletes the response channel just created, at the completion of the method execution.</li>
+</ul>
+<p>The response channels are indexed by providing the information about the channel and the transaction identifier. This can be inferred by the parameters passed to the <code>createResponseChannel(....)</code> and <code>deleteResponseChannel(...)</code> methods above and shown in the listing below.</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">Handler</span><span class="p">)</span> <span class="nx">createResponsechannel</span><span class="p">(</span><span class="nx">channelID</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">txid</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="o">*</span><span class="nx">pb</span><span class="p">.</span><span class="nx">ChaincodeMessage</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+
+   <span class="nx">h</span><span class="p">.</span><span class="nx">responseChannelMutex</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+
+   <span class="k">defer</span> <span class="nx">h</span><span class="p">.</span><span class="nx">responseChannelMutex</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+   <span class="k">if</span> <span class="nx">h</span><span class="p">.</span><span class="nx">responseChannels</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;[%s] cannot create response channel&quot;</span><span class="p">,</span> <span class="nx">shorttxid</span><span class="p">(</span><span class="nx">txid</span><span class="p">))</span>
+   <span class="p">}</span>
+   <span class="nx">txCtxID</span> <span class="o">:=</span> <span class="nx">transactionContextID</span><span class="p">(</span><span class="nx">channelID</span><span class="p">,</span> <span class="nx">txid</span><span class="p">)</span>
+   <span class="k">if</span> <span class="nx">h</span><span class="p">.</span><span class="nx">responseChannels</span><span class="p">[</span><span class="nx">txCtxID</span><span class="p">]</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+     <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;[%s] channel exists&quot;</span><span class="p">,</span> <span class="nx">shorttxid</span><span class="p">(</span><span class="nx">txid</span><span class="p">))</span>
+   <span class="p">}</span>
+
+   <span class="nx">responseChan</span> <span class="o">:=</span> <span class="nb">make</span><span class="p">(</span><span class="kd">chan</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">ChaincodeMessage</span><span class="p">)</span>
+   <span class="nx">h</span><span class="p">.</span><span class="nx">responseChannels</span><span class="p">[</span><span class="nx">txCtxID</span><span class="p">]</span> <span class="p">=</span> <span class="nx">responseChan</span>
+
+   <span class="k">return</span> <span class="nx">responseChan</span><span class="p">,</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">Handler</span><span class="p">)</span> <span class="nx">deleteResponsechannel</span><span class="p">(</span><span class="nx">channelID</span> <span class="kt">string</span><span class="p">,</span> <span class="nx">txid</span> <span class="kt">string</span><span class="p">)</span> <span class="p">{</span>
+
+   <span class="nx">h</span><span class="p">.</span><span class="nx">responseChannelMutex</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+   <span class="k">defer</span> <span class="nx">h</span><span class="p">.</span><span class="nx">responseChannelMutex</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+
+   <span class="k">if</span> <span class="nx">h</span><span class="p">.</span><span class="nx">responseChannels</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+
+      <span class="nx">txCtxID</span> <span class="o">:=</span> <span class="nx">transactionContextID</span><span class="p">(</span><span class="nx">channelID</span><span class="p">,</span> <span class="nx">txid</span><span class="p">)</span>
+      <span class="nb">delete</span><span class="p">(</span><span class="nx">h</span><span class="p">.</span><span class="nx">responseChannels</span><span class="p">,</span> <span class="nx">txCtxID</span><span class="p">)</span>
+   <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>The <em>transaction context identifier</em> (i.e. <code>txCtxID</code>) is created by the <code>transactionContextID(...)</code> function that simply combines into a single string tthe channel identifier and the transaction identifier. This identifier is used as key to index the <code>responseChannels</code> map structure of the handler and map the channel that will be used to receive chaincode messages from the message dispatching loop via <code>Handler.handleResponse(...)</code>. Because the map is accessed from concurrent go-routines, its access and update is wrapped within a mutex.</p>
+<p>The listing below shows the implementation of the of the <code>sendReceive(...)</code> method shows how the go-routine executing the transaction proposal simulation waits on the channel <code>responseChan</code> until it can read a <code>ChaincodeMessage</code> instance representing the response obtained from the peer.</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">Handler</span><span class="p">)</span> <span class="nx">sendReceive</span><span class="p">(</span><span class="nx">msg</span> <span class="o">*</span><span class="nx">pb</span><span class="p">.</span><span class="nx">ChaincodeMessage</span><span class="p">,</span> <span class="nx">responseChan</span> <span class="o">&lt;-</span><span class="kd">chan</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">ChaincodeMessage</span><span class="p">)</span> <span class="p">(</span><span class="nx">pb</span><span class="p">.</span><span class="nx">ChaincodeMessage</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+
+   <span class="nx">err</span> <span class="o">:=</span> <span class="nx">h</span><span class="p">.</span><span class="nx">serialSend</span><span class="p">(</span><span class="nx">msg</span><span class="p">)</span>
+   <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="nx">pb</span><span class="p">.</span><span class="nx">ChaincodeMessage</span><span class="p">{},</span> <span class="nx">err</span>
+   <span class="p">}</span>
+
+   <span class="nx">outMsg</span> <span class="o">:=</span> <span class="o">&lt;-</span> <span class="nx">responseChan</span>
+   <span class="k">return</span> <span class="nx">outMsg</span><span class="p">,</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h2 id="detecting-responses-from-message-stream">Detecting Responses from Message Stream</h2>
+<p>The reception of any message coming from the peer is implemented in short-lived go-routines that are spawn by the main thread which control the message receiving loop. The loop passes the all the received messages to the <code>Handler.handleMessage(*ChaincodeMessage)</code>, which based on the current state of the handler dispatches the processing to the appropriate handler function.  In this case we are interested in the <code>Handler.handleReady(*ChaincodeMessage)</code> function, and more precisely in the <code>Handler.handleResponse(*ChaincodeMessage)</code> method, shown in the listing below. This method is invoked for both <code>RESPONSE</code> and <code>ERROR</code> type messages that identify responses of the peer to a chaincode request.</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">func</span> <span class="p">(</span><span class="nx">h</span> <span class="o">*</span><span class="nx">Handler</span><span class="p">)</span> <span class="nx">handleResponse</span><span class="p">(</span><span class="nx">msg</span> <span class="o">*</span><span class="nx">pb</span><span class="p">.</span><span class="nx">ChaincodeMessage</span><span class="p">)</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="nx">h</span><span class="p">.</span><span class="nx">responseChannelsMutex</span><span class="p">.</span><span class="nx">Lock</span><span class="p">()</span>
+    <span class="k">defer</span> <span class="nx">h</span><span class="p">.</span><span class="nx">responseChannelsMutex</span><span class="p">.</span><span class="nx">Unlock</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="nx">h</span><span class="p">.</span><span class="nx">responseChannels</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;[%s] Cannot send message response channel&quot;</span><span class="p">,</span> <span class="nx">shorttxid</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Txid</span><span class="p">))</span>
+    <span class="p">}</span>
+
+    <span class="nx">txCtxID</span> <span class="o">:=</span> <span class="nx">transactionContextID</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">ChannelId</span><span class="p">,</span> <span class="nx">msg</span><span class="p">.</span><span class="nx">Txid</span><span class="p">)</span>
+    <span class="nx">responseCh</span> <span class="o">:=</span> <span class="nx">h</span><span class="p">.</span><span class="nx">responseChannels</span><span class="p">[</span><span class="nx">txCtxID</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nx">responseCh</span> <span class="o">==</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;[%s] responseChannel does not exist&quot;</span><span class="p">,</span> <span class="nx">shorttxid</span><span class="p">(</span><span class="nx">msg</span><span class="p">.</span><span class="nx">Txid</span><span class="p">))</span>
+    <span class="p">}</span>
+    <span class="nx">responseCh</span> <span class="o">&lt;-</span> <span class="o">*</span><span class="nx">msg</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>This method reconstructs the <em>transaction context identifier</em> by using the information about the channel and the transaction identifiers exposed by the chaincode message, retrieves the corresponding <em>response channel</em> from the <code>responseChannels</code> map and pushes the message through the channel to unblock the waiting go-routine that is executing the transaction propsoal simulation to invoked the peer. Once unblocked, the <code>sendReceive(...)</code> method completes, the <code>callPeerWithChaincodeMsg(....)</code> method completes, deletes the response channel and eventually the control is returned to the chaincode implementation to continue the execution of the transaction.</p>
+<p>The figure below, provide a visual overview of the essential steps that occur during a transaction invocation that talks back to the peer.</p>
+<figure class="figure-image">
+  <img src="../../../images/transaction-invocation-with-talk-back.png" alt="Transaction Invocation with Talk Back">
+  <figcaption>Transaction Invocation with Talk Back</figcaption>
+</figure>
+
+<h2 id="observations">Observations</h2>
+<p>The particular approach taken to the management of the response channel imposes some restrictions on the behaviour and the execution logic of the chaincode implementation. Since response channels are indexed by the pair of channel and transaction identifiers, there can be <strong>only one outgoing communication to the peer within the context of single transaction invocation at any given time</strong>. If there were more than one the current implementation would not be able to discern which message to send to which waiting go-routine, because the would share the same response channel. The problem does not sussist once the one request to the peer is fullfilled because at that point the corresponding response channel is deleted and therefore it can be recreated.</p>
+<p>This constraint translates into the requirement of serialising all the requests back to the peer, within the context of a transaction invocation.  Essentially, all the requests made by the smart contract to the peer need to be made sequentially and we cannot trigger them concurrently. As a result, besides having a stateless model we also derive that the smart contract implementation should be single-threaded (i.e. it cannot spawn go-routines to execute functions with a reference to the <code>ChaincodeStubInteface</code>).</p>
+<p>This is a very pragmatic reason for not using go-routines within a smart contract function. Obviously, avoiding non-determinism is another one equally important.</p>
+                
+                  
+                    
+
+<hr>
+<div class="md-source-date">
+  <small>
+    
+      Last update: <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">April 15, 2020 13:57:25</span>
+    
+  </small>
+</div>
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../transaction-processing/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Aysnchronous Transaction Processing
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../range-queries/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Range Queries and Iterators
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../../assets/javascripts/vendor.53cc9318.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.e9c9f54f.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "../../..",
+          features: [],
+          search: Object.assign({
+            worker: "../../../assets/javascripts/worker/search.9c0e82ba.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>

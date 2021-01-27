@@ -1,0 +1,1199 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="This website contains the description of the internal architecture of Hyperledger Fabric.">
+      
+      
+      
+        <meta name="author" content="Christian Vecchiola">
+      
+      
+      <link rel="shortcut icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.6">
+    
+    
+      
+        <title>Range Queries and Iterators - Hyperledger Fabric Internals Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.cb6bc1d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.39b8e14a.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+      
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#range-queries-and-iterators" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="../../.." title="Hyperledger Fabric Internals Documentation" class="md-header-nav__button md-logo" aria-label="Hyperledger Fabric Internals Documentation">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            Hyperledger Fabric Internals Documentation
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Range Queries and Iterators
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/IBM/hlf-internals/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    IBM/hlf-internals
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Hyperledger Fabric Internals Documentation" class="md-nav__button md-logo" aria-label="Hyperledger Fabric Internals Documentation">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Hyperledger Fabric Internals Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/IBM/hlf-internals/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    IBM/hlf-internals
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../license/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" >
+      
+      <label class="md-nav__link" for="nav-3">
+        Chaincode Management Overview
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Chaincode Management Overview" data-md-level="1">
+        <label class="md-nav__title" for="nav-3">
+          <span class="md-nav__icon md-icon"></span>
+          Chaincode Management Overview
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../overview/chaincode-execution-model/" class="md-nav__link">
+        Chaincode Execution Model
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../overview/peer-operating-modes/" class="md-nav__link">
+        Peer Operating Modes
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../overview/secure-networking/" class="md-nav__link">
+        Secure Networking
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4" >
+      
+      <label class="md-nav__link" for="nav-4">
+        Interaction Protocol
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Interaction Protocol" data-md-level="1">
+        <label class="md-nav__title" for="nav-4">
+          <span class="md-nav__icon md-icon"></span>
+          Interaction Protocol
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../protocol/architecture-components/" class="md-nav__link">
+        Key Components
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../protocol/interaction-lifecycle/" class="md-nav__link">
+        Interaction Lifecycle
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../protocol/messages/" class="md-nav__link">
+        Messages Exchanged
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
+      
+      <label class="md-nav__link" for="nav-5">
+        Shim Architecture
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Shim Architecture" data-md-level="1">
+        <label class="md-nav__title" for="nav-5">
+          <span class="md-nav__icon md-icon"></span>
+          Shim Architecture
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5-2" type="checkbox" id="nav-5-2" >
+      
+      <label class="md-nav__link" for="nav-5-2">
+        Components
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Components" data-md-level="2">
+        <label class="md-nav__title" for="nav-5-2">
+          <span class="md-nav__icon md-icon"></span>
+          Components
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/shim/" class="md-nav__link">
+        Shim
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/handler/" class="md-nav__link">
+        Handler
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/chaincode-stub-interface/" class="md-nav__link">
+        ChaincodeStubInterface
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/chaincode-stub/" class="md-nav__link">
+        ChaincodeStub
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../components/other-components/" class="md-nav__link">
+        Other Components
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5-3" type="checkbox" id="nav-5-3" checked>
+      
+      <label class="md-nav__link" for="nav-5-3">
+        Interaction Flow
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Interaction Flow" data-md-level="2">
+        <label class="md-nav__title" for="nav-5-3">
+          <span class="md-nav__icon md-icon"></span>
+          Interaction Flow
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../transaction-processing/" class="md-nav__link">
+        Aysnchronous Transaction Processing
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../talk-backs/" class="md-nav__link">
+        Managing Talk-backs with the Peer
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Range Queries and Iterators
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Range Queries and Iterators
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation" class="md-nav__link">
+    Implementation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interaction-flow" class="md-nav__link">
+    Interaction Flow
+  </a>
+  
+    <nav class="md-nav" aria-label="Interaction Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#iterating-over-state-keys" class="md-nav__link">
+    Iterating Over State Keys
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#executing-complex-queries" class="md-nav__link">
+    Executing Complex Queries
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retrieving-the-history-of-a-key" class="md-nav__link">
+    Retrieving the History of a Key
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pagination-control" class="md-nav__link">
+    Pagination Control
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observations" class="md-nav__link">
+    Observations
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../chaincode-events/" class="md-nav__link">
+        Chaincode Events
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../execution-patterns/" class="md-nav__link">
+        Chaincode Execution Patterns
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../security/" class="md-nav__link">
+        Securing the Chaincode Process
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../peer-architecture/" class="md-nav__link">
+        Peer Architecture
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adding-new-languages/" class="md-nav__link">
+        Support for New Languages
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../about/" class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    Overview
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation" class="md-nav__link">
+    Implementation
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interaction-flow" class="md-nav__link">
+    Interaction Flow
+  </a>
+  
+    <nav class="md-nav" aria-label="Interaction Flow">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#iterating-over-state-keys" class="md-nav__link">
+    Iterating Over State Keys
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#executing-complex-queries" class="md-nav__link">
+    Executing Complex Queries
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#retrieving-the-history-of-a-key" class="md-nav__link">
+    Retrieving the History of a Key
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pagination-control" class="md-nav__link">
+    Pagination Control
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observations" class="md-nav__link">
+    Observations
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/IBM/hlf-internals/edit/master/docs/shim-architecture/interaction-flow/range-queries.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="range-queries-and-iterators">Range Queries and Iterators</h1>
+<h2 id="overview">Overview</h2>
+<p>The <code>ChaincodeStubInterface</code> exposes several methods that allow smart contract developers to retrieve a sequence of entries. This capability is quite useful as it allows, for instance, the iteration of a range of keys that match a certain criteria or retrieval of the historical changes made to the value associated to a key.</p>
+<p>The implementation of this capability relies on <em>iterators</em>. These rely upon the already described method for <a href="../talk-backs/">issuing requests to the peer</a> but may involve multiple requests made to optimise the bandwidth and the consumption of network resources.</p>
+<h2 id="implementation">Implementation</h2>
+<p>Three different types of iterators are defined:</p>
+<ul>
+<li><code>CommonIteratorInterface</code>: this interface defines the common operations of all types of iterators.</li>
+<li><code>StateQueryIteratorInterface</code>: this interface specialises the base iterator interface to iterate over a collection of keys in the ledger.</li>
+<li><code>HistoryQueryIteratorInterface</code>: this interface specialises the base iterator interface to iterate over the history of changes of a key.</li>
+</ul>
+<p>The listing below shows the definition of the iterator interfaces and the following table maps the <code>ChaincodeStubInterface</code> methods to the corresponding iterators that are returned by such methods.</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">type</span> <span class="nx">CommonIteratorInterface</span> <span class="kd">interface</span> <span class="p">{</span>
+   <span class="nx">HasNext</span><span class="p">()</span> <span class="kt">bool</span>
+   <span class="nx">Close</span><span class="p">()</span> <span class="kt">error</span>
+<span class="p">}</span>
+
+<span class="kd">type</span>  <span class="p">{</span>
+    <span class="nx">CommonIteratorInterface</span>
+    <span class="nx">Next</span><span class="p">()</span> <span class="p">(</span><span class="o">*</span><span class="nx">queryresult</span><span class="p">.</span><span class="nx">KV</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">type</span> <span class="nx">HistoryQueryIteratorInterface</span> <span class="p">{</span>
+    <span class="nx">CommonIteratorInterface</span>
+    <span class="nx">Next</span><span class="p">()</span> <span class="p">(</span><span class="o">*</span><span class="nx">queryresult</span><span class="p">.</span><span class="nx">KyModification</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<table>
+<thead>
+<tr>
+<th align="left">ChaincodeStubInterface Method</th>
+<th align="left">Returned Iterator</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">GetStateByRange</td>
+<td align="left">StateQueryIteratorInterface</td>
+</tr>
+<tr>
+<td align="left">GetStateByRangeWithPagination</td>
+<td align="left">StateQueryIteratorInterface</td>
+</tr>
+<tr>
+<td align="left">GetStateByPartialCompositeKey</td>
+<td align="left">StateQueryIteratorInterface</td>
+</tr>
+<tr>
+<td align="left">GetStateByPartialCompositeKeyWithPagination</td>
+<td align="left">StateQueryIteratorInterface</td>
+</tr>
+<tr>
+<td align="left">GetQueryResult</td>
+<td align="left">StateQueryIteratorInterface</td>
+</tr>
+<tr>
+<td align="left">GetQueryResultWithPagination</td>
+<td align="left">StateQueryIteratorInterface</td>
+</tr>
+<tr>
+<td align="left">GetPrivateDataByRange</td>
+<td align="left">StateQueryIteratorInterface</td>
+</tr>
+<tr>
+<td align="left">GetPrivateDataByPartialCompositeKey</td>
+<td align="left">StateQueryIteratorInterface</td>
+</tr>
+<tr>
+<td align="left">GetPrivateDataQueryResult</td>
+<td align="left">StateQueryIteratorInterface</td>
+</tr>
+<tr>
+<td align="left">GetHistoryForKey</td>
+<td align="left">HistoryQueryIteratorInterface</td>
+</tr>
+</tbody>
+</table>
+<p>Most of the method use the <code>StateQueryIteratorInterface</code> as they provide different options to iterate over a collection of key in the world state (public and private). Only one method returns implementation of <code>HistoryQueryIteratorInterface</code>. These specialised interfaces of the <code>CommonIteratorInterface</code> only differ in the declaration of the return type of the <code>Next()</code> method. This is also reflected in the implementation of these interfaces that are defined in the <a href="https://github.com/hyperledger/fabric-chaincode-go/blob/master/shim/stub.go">stub.go</a> file:</p>
+<ul>
+<li><strong>CommonQueryIterator</strong>: implements all the common logic of the iterator and the interaction with the handler.</li>
+<li><strong>StateQueryIterator</strong>: implements the <code>Next()</code> method to cast the returned struct to the <code>*queryresult.KV</code> type.</li>
+<li><strong>HistoryQueryIterator</strong>: implements the <code>Next()</code> method to cast the returned struct to the <code>*queryresult.KeyModification</code> type.</li>
+</ul>
+<p>The coordination of these three component with the <code>ChaincodeStub</code> provides support fo all the functions that return iterators.</p>
+<p>The <code>ChaincodeStub</code> has the following responsibilities:</p>
+<ul>
+<li>prepare the information about the range to be queried, by adapting the parameters passed to the different methods that return iterators;</li>
+<li>invoke the corresponding <code>Handler</code> method to retrieve the first batch of data; and</li>
+<li>return the appropriate iterator implementation configured with the data that has been retrieved.</li>
+</ul>
+<p>The iteration control logic is all implemented in the method that are bound to the <code>CommonIterator</code> struct, while the other two struct simply type casting.
+The figure below provides an overview of the three structs and how the  method bounds to the different types relate to each other.</p>
+<figure class="figure-image">
+  <img src="../../../images/iterator-design-and-implementation.png" alt="Design and Implementation of Iterators">
+  <figcaption>Design and Implementation of Iterators</figcaption>
+</figure>
+
+<h2 id="interaction-flow">Interaction Flow</h2>
+<p>The interaction flow with iterators starts from the <code>ChaincodeStub</code>, whose primaru responsibility is interfacing with the <code>Chaincode</code> implementation and expose a rich set of functions to query various elements in the ledger. From an implementation perspective all these functions are supported by three key methods:</p>
+<ul>
+<li><code>ChaincodeStub.handleGetStateByRange(....)</code></li>
+<li><code>ChaincodeStub.handleGetQueryResult(....)</code></li>
+<li><code>ChaincodeStub.createQueryMetadata(....)</code></li>
+</ul>
+<p>Moreover, a set of utility methods support the management of key ranges and are used to prepare the information required by these methods.</p>
+<h3 id="iterating-over-state-keys">Iterating Over State Keys</h3>
+<p>The method <code>ChaincodeStub.handleGetStateByRange(....)</code> is the common denominator for all those methods that retrieves a collection of keys from the ledger. These are:</p>
+<ul>
+<li><code>ChaincodeStubInterface.GetStateByRange(...)</code></li>
+<li><code>ChaincodeStubInterface.GetStateByRangeWithPagination(...)</code></li>
+<li><code>ChaincodeStubInterface.GetStateByPartialCompositeKey(...)</code></li>
+<li><code>ChaincodeStubInterface.GetStateByPartialCompositeKeyWithPagination(...)</code></li>
+<li><code>ChaincodeStubInterface.GetPrivateDataByRange(...)</code></li>
+<li><code>ChaincodeStubInterface.GetPrivateDataByPartialCompositeKey(...)</code></li>
+</ul>
+<p>This method invokes the corresponding function in the handler. This in turn sends a <code>ChaincodeMessage</code> of type <code>GET_STATE_BY_RANGE</code> configured with the required parameters to instruct the peer what to query. The listing below shows the implementation of the method.</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">ChaincodeStub</span><span class="p">)</span> <span class="nx">handleGetStateByRange</span><span class="p">(</span>
+    <span class="nx">collection</span><span class="p">,</span> <span class="nx">startKey</span><span class="p">,</span> <span class="nx">endKey</span> <span class="kt">string</span><span class="p">,</span>
+    <span class="nx">metadata</span> <span class="p">[]</span><span class="kt">byte</span>
+<span class="p">)</span> <span class="p">(</span><span class="nx">StateQueryIteratorInterface</span><span class="p">,</span> <span class="o">*</span><span class="nx">pb</span><span class="p">.</span><span class="nx">QueryResponseMetadata</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+
+   <span class="nx">response</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">handler</span><span class="p">.</span><span class="nx">handleGetStateByRange</span><span class="p">(</span><span class="nx">collection</span><span class="p">,</span> <span class="nx">startKey</span><span class="p">,</span> <span class="nx">endKey</span><span class="p">,</span> <span class="nx">metadata</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">ChannelID</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">TxID</span><span class="p">)</span>
+   <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+   <span class="p">}</span>
+   <span class="nx">iterator</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">createStateQueryIterator</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span>
+
+   <span class="nx">responseMetadata</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">createQueryResponseMetadata</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">Metadata</span><span class="p">)</span>
+   <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+   <span class="p">}</span>
+   <span class="k">return</span> <span class="nx">iterator</span><span class="p">,</span> <span class="nx">responseMetadata</span><span class="p">,</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>The most of the execution of the logic is contained in the handler. The stub is responsible for creating the appropriate iterator and deserialising the <code>QueryResponseMetadata</code> which provides information about the records that have been fetched and the bookmark for the search.</p>
+<h3 id="executing-complex-queries">Executing Complex Queries</h3>
+<p>The execution of complex queries is implemented through <code>ChaincodeStub.handleGetQueryResult(...)</code> which supports the functionalities required by the following methods:</p>
+<ul>
+<li><code>ChaincodeStubInterface.GetQueryResult(...)</code></li>
+<li><code>ChaincodeStubInterface.GetQueryResultWithPagination(...)</code></li>
+<li><code>GetPrivateDataQueryResult(...)</code></li>
+</ul>
+<p>The implementation invokes the corresponding function in the handler. This in turn sends a <code>ChaincodeMessage</code> of type <code>GET_QUERY_RESULT</code> to the peer configured with the repquired parameter to instruct the peer on what to query. The implementation of this method is essentially the same as the one that support queries by range.</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">ChaincodeStub</span><span class="p">)</span> <span class="nx">handleGetQueryResult</span><span class="p">(</span>
+    <span class="nx">collection</span><span class="p">,</span> <span class="nx">query</span> <span class="kt">string</span><span class="p">,</span>
+    <span class="nx">metadata</span> <span class="p">[]</span><span class="kt">byte</span>
+<span class="p">)</span> <span class="p">(</span><span class="nx">StateQueryIteratorInterface</span><span class="p">,</span> <span class="o">*</span><span class="nx">pb</span><span class="p">.</span><span class="nx">QueryResponseMetadata</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+
+   <span class="nx">response</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">handler</span><span class="p">.</span><span class="nx">handleGetQueryResult</span><span class="p">(</span><span class="nx">collection</span><span class="p">,</span> <span class="nx">query</span><span class="p">,</span> <span class="nx">metadata</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">ChannelID</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">TxID</span><span class="p">)</span>
+   <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+   <span class="p">}</span>
+   <span class="nx">iterator</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">createStateQueryIterator</span><span class="p">(</span><span class="nx">response</span><span class="p">)</span>
+
+   <span class="nx">responseMetadata</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">createQueryResponseMetadata</span><span class="p">(</span><span class="nx">response</span><span class="p">.</span><span class="nx">Metadata</span><span class="p">)</span>
+   <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+   <span class="p">}</span>
+   <span class="k">return</span> <span class="nx">iterator</span><span class="p">,</span> <span class="nx">responseMetadata</span><span class="p">,</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<h3 id="retrieving-the-history-of-a-key">Retrieving the History of a Key</h3>
+<p>The method <code>ChaincodeStub.GetHistoryForKey(...)</code> provides access to the history of changes of a specific key in the ledger. The <code>ChaincodeStubInterface</code> exposes only one version of this method and therefore the coordination logic for retrieval is implemented directly in this method. In this case, there is no query metadata to process because there is no explicit pagination support as in the other two cases.</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">func</span> <span class="p">(</span><span class="nx">s</span> <span class="o">*</span><span class="nx">ChaincodeStub</span><span class="p">)</span> <span class="nx">GetHistoryForKey</span><span class="p">(</span><span class="nx">key</span> <span class="kt">string</span><span class="p">)</span> <span class="p">(</span><span class="nx">StateQueryIteratorInterface</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+
+   <span class="nx">response</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">s</span><span class="p">.</span><span class="nx">handler</span><span class="p">.</span><span class="nx">handleGetHistoryForKey</span><span class="p">(</span><span class="nx">key</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">ChannelID</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">TxID</span><span class="p">)</span>
+
+   <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+      <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+   <span class="p">}</span>
+
+   <span class="k">return</span> <span class="o">&amp;</span><span class="nx">HistoryQueryIterator</span><span class="p">{</span><span class="nx">CommonIterator</span><span class="p">:</span> <span class="o">&amp;</span><span class="nx">CommonIterator</span><span class="p">{</span><span class="nx">s</span><span class="p">.</span><span class="nx">handler</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">ChannelID</span><span class="p">,</span> <span class="nx">s</span><span class="p">.</span><span class="nx">TxID</span><span class="p">,</span> <span class="nx">response</span><span class="p">,</span> <span class="mi">0</span><span class="p">}},</span> <span class="kc">nil</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>This method invokes the corresponding method in the handler, which in turn sends a message  <code>GET_HISTORY_FOR_KEY</code> to the peer to retrieve the history associated to the specified key.</p>
+<h3 id="pagination-control">Pagination Control</h3>
+<p>The figure below provides an overview of the iterator in action within the context of the chaincode process. The figure shows the case for querying the ledger state by range, and therefore the execution of <code>ChaincodeStub.handleGetStateByRange(...)</code> but the flow is essentially the same for all the other
+methods that return iterators.</p>
+<figure class="figure-image">
+  <img src="../../../images/pagination-control.png" alt="Pagination Control with Iterators">
+  <figcaption>Pagination Control with Iterators</figcaption>
+</figure>
+
+<p>A normal iteration cycle includes the following:</p>
+<ul>
+<li>invoking <code>HasNext()</code> to verify whether there are more elements to process;</li>
+<li>in case there are invoking <code>Next()</code> to retrieve the next element; and</li>
+<li>in case there aren't, close the iterator by invoking <code>Close()</code>.</li>
+</ul>
+<p>The first two operation can be repeated in sequence until the caller is satisfied with the value that have been returned of the iterator reaches the end of the range.</p>
+<p>Internally, the iterator implementation feeds the caller with element from the local batch of data that has been pre-fetched. If the iterator has reached the last element of the local batch, the iterator invokes <code>fetchNextQueryResult()</code>, which in turn calls the method <code>Handler.handleNextQueryStateNext(...)</code> by passing to it the last key that has been retrieved. The handler utilises this information to create a <code>ChaincodeMessage</code> of type <code>QUERY_STATE_NEXT</code> to the peer to retrieve the next batch of items. The call to the handler method is blocking because the implementation uses <code>Handler.sendReceive(....)</code> and therefore it behaves as previously explained.</p>
+<p>Similarly, closing an iterator triggers the invocation of <code>Handler.handleQueryStateClose(..)</code> which sends a message of type <code>QU?ERY_STATE_CLOSE</code> to the peer and instruct it release the resources allocated to serve the query.</p>
+<p>The pagination control logic is fully implemented in the methods bound to the <code>CommonIterator</code> struct. Even the implementation of the <code>Next()</code> methods is controlled by the common iterator logic defined by <code>CommonIterator.nextResult(...)</code> which has a switch on type to handle the processing of the different types of data. The listing below shows the implementation of the relevant methods of the iterator.</p>
+<div class="codehilite"><pre><span></span><code><span class="kd">func</span> <span class="p">(</span><span class="nx">iter</span> <span class="o">*</span><span class="nx">CommonIterator</span><span class="p">)</span> <span class="nx">fetchNextQueryResult</span><span class="p">()</span> <span class="kt">error</span> <span class="p">{</span>
+    <span class="nx">response</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">iter</span><span class="p">.</span><span class="nx">handler</span><span class="p">.</span><span class="nx">handleQueryStateNext</span><span class="p">(</span><span class="nx">iter</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nx">Id</span><span class="p">,</span> <span class="nx">iter</span><span class="p">.</span><span class="nx">channelID</span><span class="p">,</span> <span class="nx">iter</span><span class="p">.</span><span class="nx">txid</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+        <span class="k">return</span> <span class="nx">err</span>
+    <span class="p">}</span>
+    <span class="nx">iter</span><span class="p">.</span><span class="nx">currentLoc</span> <span class="p">=</span> <span class="mi">0</span>
+    <span class="nx">iter</span><span class="p">.</span><span class="nx">response</span> <span class="p">=</span> <span class="nx">response</span>
+    <span class="k">return</span> <span class="kc">nil</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">iter</span> <span class="o">*</span><span class="nx">CommonIterator</span><span class="p">)</span> <span class="nx">getResultFromBytes</span><span class="p">(</span><span class="nx">queryResultBytes</span> <span class="o">*</span><span class="nx">pb</span><span class="p">.</span><span class="nx">QueryResultBytes</span><span class="p">,</span> <span class="nx">rType</span> <span class="nx">resultType</span><span class="p">)</span> <span class="p">(</span><span class="nx">queryResult</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+
+    <span class="k">if</span> <span class="nx">rType</span> <span class="o">==</span> <span class="nx">StateQueryResult</span> <span class="p">{</span>
+        <span class="nx">stateQueryResult</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">queryresult</span><span class="p">.</span><span class="nx">KV</span><span class="p">{}</span>
+        <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">proto</span><span class="p">.</span><span class="nx">Unmarshal</span><span class="p">(</span><span class="nx">queryResultBytes</span><span class="p">.</span><span class="nx">ResultBytes</span><span class="p">,</span> <span class="nx">stateQueryResult</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">fmt</span><span class="p">.</span><span class="nx">Errorf</span><span class="p">(</span><span class="s">&quot;error unmarshaling result from bytes: %s&quot;</span><span class="p">,</span> <span class="nx">err</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nx">stateQueryResult</span><span class="p">,</span> <span class="kc">nil</span>
+
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="nx">rType</span> <span class="o">==</span> <span class="nx">HistoryQueryResult</span> <span class="p">{</span>
+        <span class="nx">historyQueryResult</span> <span class="o">:=</span> <span class="o">&amp;</span><span class="nx">queryresult</span><span class="p">.</span><span class="nx">KeyModification</span><span class="p">{}</span>
+        <span class="k">if</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">proto</span><span class="p">.</span><span class="nx">Unmarshal</span><span class="p">(</span><span class="nx">queryResultBytes</span><span class="p">.</span><span class="nx">ResultBytes</span><span class="p">,</span> <span class="nx">historyQueryResult</span><span class="p">);</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="nx">historyQueryResult</span><span class="p">,</span> <span class="kc">nil</span>
+    <span class="p">}</span>
+    <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="s">&quot;wrong result type&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="kd">func</span> <span class="p">(</span><span class="nx">iter</span> <span class="o">*</span><span class="nx">CommonIterator</span><span class="p">)</span> <span class="nx">nextResult</span><span class="p">(</span><span class="nx">rType</span> <span class="nx">resultType</span><span class="p">)</span> <span class="p">(</span><span class="nx">queryResult</span><span class="p">,</span> <span class="kt">error</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="nx">iter</span><span class="p">.</span><span class="nx">currentLoc</span> <span class="p">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="nx">iter</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nx">Results</span><span class="p">)</span> <span class="p">{</span>
+        <span class="c1">// On valid access of an element from cached results</span>
+        <span class="nx">queryResult</span><span class="p">,</span> <span class="nx">err</span> <span class="o">:=</span> <span class="nx">iter</span><span class="p">.</span><span class="nx">getResultFromBytes</span><span class="p">(</span><span class="nx">iter</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nx">Results</span><span class="p">[</span><span class="nx">iter</span><span class="p">.</span><span class="nx">currentLoc</span><span class="p">],</span> <span class="nx">rType</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+            <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+        <span class="p">}</span>
+        <span class="nx">iter</span><span class="p">.</span><span class="nx">currentLoc</span><span class="o">++</span>
+
+        <span class="k">if</span> <span class="nx">iter</span><span class="p">.</span><span class="nx">currentLoc</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="nx">iter</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nx">Results</span><span class="p">)</span> <span class="o">&amp;&amp;</span> <span class="nx">iter</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nx">HasMore</span> <span class="p">{</span>
+            <span class="c1">// On access of last item, pre-fetch to update HasMore flag</span>
+            <span class="k">if</span> <span class="nx">err</span> <span class="p">=</span> <span class="nx">iter</span><span class="p">.</span><span class="nx">fetchNextQueryResult</span><span class="p">();</span> <span class="nx">err</span> <span class="o">!=</span> <span class="kc">nil</span> <span class="p">{</span>
+                <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">err</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="nx">queryResult</span><span class="p">,</span> <span class="nx">err</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="k">if</span> <span class="p">!</span><span class="nx">iter</span><span class="p">.</span><span class="nx">response</span><span class="p">.</span><span class="nx">HasMore</span> <span class="p">{</span>
+        <span class="c1">// On call to Next() without check of HasMore</span>
+        <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="s">&quot;no such key&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+
+    <span class="c1">// should not fall through here</span>
+    <span class="c1">// case: no cached results but HasMore is true.</span>
+    <span class="k">return</span> <span class="kc">nil</span><span class="p">,</span> <span class="nx">errors</span><span class="p">.</span><span class="nx">New</span><span class="p">(</span><span class="s">&quot;invalid iterator state&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+</code></pre></div>
+
+<p>The method <code>nextResult(...)</code> is the one that controls the access to the local cache of elements and the iteration logic. It invokes <code>getNextResultFromBytes(...)</code> to deserialise the element to return into the right type, and pre-fetches the next batch of elements by invoking <code>fetchNextQueryResult(...)</code>.</p>
+<h2 id="observations">Observations</h2>
+<p>From the implementation of these method every method that provides access to iterators returns iterator implementations that partially retrieve the set of elements that match the searching criteria in the form of data pages. This is the implemented behaviour regardless of whether the smart contract develoeper has called a method <code>...WithPagination(...)</code>.</p>
+<p>The question therefore arise on what is the difference between the paginated version and the non-paginated version of the same method. The first set of methods implement <em>explicit pagination</em> while the second set of method rely upon <em>implicit pagination</em>. From an implementation perspective it is always useful to paginate large data sets, especially if there isn't a full consumption of the data in range. Methods that provide <em>explicit pagination</em> provide the smart contract developers with more control on the navigation of the range of keys that are returned by the iterator. For instance, it allows them to skip elements more easily and to start the search from a given page.</p>
+                
+                  
+                    
+
+<hr>
+<div class="md-source-date">
+  <small>
+    
+      Last update: <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">May 1, 2020 03:56:01</span>
+    
+  </small>
+</div>
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../talk-backs/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Managing Talk-backs with the Peer
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../chaincode-events/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Chaincode Events
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../../assets/javascripts/vendor.53cc9318.min.js"></script>
+      <script src="../../../assets/javascripts/bundle.e9c9f54f.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "../../..",
+          features: [],
+          search: Object.assign({
+            worker: "../../../assets/javascripts/worker/search.9c0e82ba.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>

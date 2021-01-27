@@ -1,0 +1,1043 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="This website contains the description of the internal architecture of Hyperledger Fabric.">
+      
+      
+      
+        <meta name="author" content="Christian Vecchiola">
+      
+      
+      <link rel="shortcut icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.6">
+    
+    
+      
+        <title>Interaction Lifecycle - Hyperledger Fabric Internals Documentation</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.cb6bc1d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../../assets/stylesheets/palette.39b8e14a.min.css">
+        
+      
+    
+    
+    
+      
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
+        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+      
+    
+    
+    
+    
+      
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="none" data-md-color-accent="none">
+      
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#interaction-lifecycle" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid" aria-label="Header">
+    <a href="../.." title="Hyperledger Fabric Internals Documentation" class="md-header-nav__button md-logo" aria-label="Hyperledger Fabric Internals Documentation">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    <label class="md-header-nav__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
+    </label>
+    <div class="md-header-nav__title" data-md-component="header-title">
+      <div class="md-header-nav__ellipsis">
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            Hyperledger Fabric Internals Documentation
+          </span>
+        </div>
+        <div class="md-header-nav__topic">
+          <span class="md-ellipsis">
+            
+              Interaction Lifecycle
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      <label class="md-header-nav__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+      </label>
+      
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+      </label>
+      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+      </button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header-nav__source">
+        
+<a href="https://github.com/IBM/hlf-internals/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    IBM/hlf-internals
+  </div>
+</a>
+      </div>
+    
+  </nav>
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="Hyperledger Fabric Internals Documentation" class="md-nav__button md-logo" aria-label="Hyperledger Fabric Internals Documentation">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 003-3 3 3 0 00-3-3 3 3 0 00-3 3 3 3 0 003 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54z"/></svg>
+
+    </a>
+    Hyperledger Fabric Internals Documentation
+  </label>
+  
+    <div class="md-nav__source">
+      
+<a href="https://github.com/IBM/hlf-internals/" title="Go to repository" class="md-source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    IBM/hlf-internals
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        Home
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../license/" class="md-nav__link">
+        License
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-3" type="checkbox" id="nav-3" >
+      
+      <label class="md-nav__link" for="nav-3">
+        Chaincode Management Overview
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Chaincode Management Overview" data-md-level="1">
+        <label class="md-nav__title" for="nav-3">
+          <span class="md-nav__icon md-icon"></span>
+          Chaincode Management Overview
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../overview/chaincode-execution-model/" class="md-nav__link">
+        Chaincode Execution Model
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../overview/peer-operating-modes/" class="md-nav__link">
+        Peer Operating Modes
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../overview/secure-networking/" class="md-nav__link">
+        Secure Networking
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4" checked>
+      
+      <label class="md-nav__link" for="nav-4">
+        Interaction Protocol
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Interaction Protocol" data-md-level="1">
+        <label class="md-nav__title" for="nav-4">
+          <span class="md-nav__icon md-icon"></span>
+          Interaction Protocol
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../architecture-components/" class="md-nav__link">
+        Key Components
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Interaction Lifecycle
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Interaction Lifecycle
+      </a>
+      
+        
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#message-structure" class="md-nav__link">
+    Message Structure
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-1-initialisation" class="md-nav__link">
+    Phase 1: Initialisation
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 1: Initialisation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#peer-initialisation" class="md-nav__link">
+    Peer Initialisation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shim-initialisation" class="md-nav__link">
+    Shim Initialisation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-2-communication-setup" class="md-nav__link">
+    Phase 2: Communication Setup
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-3-transaction-execution" class="md-nav__link">
+    Phase 3: Transaction Execution
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../messages/" class="md-nav__link">
+        Messages Exchanged
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" >
+      
+      <label class="md-nav__link" for="nav-5">
+        Shim Architecture
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Shim Architecture" data-md-level="1">
+        <label class="md-nav__title" for="nav-5">
+          <span class="md-nav__icon md-icon"></span>
+          Shim Architecture
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shim-architecture/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5-2" type="checkbox" id="nav-5-2" >
+      
+      <label class="md-nav__link" for="nav-5-2">
+        Components
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Components" data-md-level="2">
+        <label class="md-nav__title" for="nav-5-2">
+          <span class="md-nav__icon md-icon"></span>
+          Components
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shim-architecture/components/shim/" class="md-nav__link">
+        Shim
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shim-architecture/components/handler/" class="md-nav__link">
+        Handler
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shim-architecture/components/chaincode-stub-interface/" class="md-nav__link">
+        ChaincodeStubInterface
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shim-architecture/components/chaincode-stub/" class="md-nav__link">
+        ChaincodeStub
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shim-architecture/components/other-components/" class="md-nav__link">
+        Other Components
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+      
+        <input class="md-nav__toggle md-toggle" data-md-toggle="nav-5-3" type="checkbox" id="nav-5-3" >
+      
+      <label class="md-nav__link" for="nav-5-3">
+        Interaction Flow
+        <span class="md-nav__icon md-icon"></span>
+      </label>
+      <nav class="md-nav" aria-label="Interaction Flow" data-md-level="2">
+        <label class="md-nav__title" for="nav-5-3">
+          <span class="md-nav__icon md-icon"></span>
+          Interaction Flow
+        </label>
+        <ul class="md-nav__list" data-md-scrollfix>
+          
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shim-architecture/interaction-flow/overview/" class="md-nav__link">
+        Overview
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shim-architecture/interaction-flow/transaction-processing/" class="md-nav__link">
+        Aysnchronous Transaction Processing
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shim-architecture/interaction-flow/talk-backs/" class="md-nav__link">
+        Managing Talk-backs with the Peer
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shim-architecture/interaction-flow/range-queries/" class="md-nav__link">
+        Range Queries and Iterators
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shim-architecture/interaction-flow/chaincode-events/" class="md-nav__link">
+        Chaincode Events
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shim-architecture/execution-patterns/" class="md-nav__link">
+        Chaincode Execution Patterns
+      </a>
+    </li>
+  
+
+          
+            
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../shim-architecture/security/" class="md-nav__link">
+        Securing the Chaincode Process
+      </a>
+    </li>
+  
+
+          
+        </ul>
+      </nav>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../peer-architecture/" class="md-nav__link">
+        Peer Architecture
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../adding-new-languages/" class="md-nav__link">
+        Support for New Languages
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../about/" class="md-nav__link">
+        About
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#message-structure" class="md-nav__link">
+    Message Structure
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-1-initialisation" class="md-nav__link">
+    Phase 1: Initialisation
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 1: Initialisation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#peer-initialisation" class="md-nav__link">
+    Peer Initialisation
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#shim-initialisation" class="md-nav__link">
+    Shim Initialisation
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-2-communication-setup" class="md-nav__link">
+    Phase 2: Communication Setup
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-3-transaction-execution" class="md-nav__link">
+    Phase 3: Transaction Execution
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/IBM/hlf-internals/edit/master/docs/protocol/interaction-lifecycle.md" title="Edit this page" class="md-content__button md-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25z"/></svg>
+                  </a>
+                
+                
+                <h1 id="interaction-lifecycle">Interaction Lifecycle</h1>
+<p>The interaction protocol is completely based on the exchange of <a href="https://developers.google.com/protocol-buffers">Protobuf</a> messages between the chaincode process and the peer. The exchanged messages are of type <code>ChaincodeMessage</code> and defined in  the <a href="https://github.com/hyperledger/fabric-protos/blob/master/peer/chaincode_shim.proto">chaincode_shim.proto</a> file of the fabric-protos repository. The advantage of using Protobuf is to decouple the semantic from the implementation.</p>
+<figure class="figure-image">
+  <img src="../../images/protocol-overview.png" alt="Protocol Interaction Overview">
+  <figcaption>Protocol Interaction Overview</figcaption>
+</figure>
+
+<p>The figure above provides an overview of the interaction protocol end-to-end. The lifecycle of the interaction develops in three phases: initialisation, setup, and transaction execution (or run phase). More details for each of the phases will be provided in the corresponding sections.</p>
+<h2 id="message-structure">Message Structure</h2>
+<p>The table below provides an overview of the structure of the message. The design rationale is  to use a single type of message whose type determines how to interpret and cast the payload. Different types of messages are used to express and convey the information needed for each of the operations supported by the protocol.</p>
+<table>
+<thead>
+<tr>
+<th align="left">Attribute Name</th>
+<th align="left">Type</th>
+<th align="left">Meaning</th>
+<th align="center">Optional</th>
+<th align="left">Comments</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="left">type</td>
+<td align="left">enum</td>
+<td align="left">type of message</td>
+<td align="center">no</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">timestamp</td>
+<td align="left">google.protobuf.Timestamp</td>
+<td align="left">timestamp</td>
+<td align="center">no</td>
+<td align="left">message creation time</td>
+</tr>
+<tr>
+<td align="left">txid</td>
+<td align="left">string</td>
+<td align="left">transaction identifier</td>
+<td align="center">yes</td>
+<td align="left"></td>
+</tr>
+<tr>
+<td align="left">payload</td>
+<td align="left">byte[]</td>
+<td align="left">message payload</td>
+<td align="center">yes</td>
+<td align="left">contains different information based on type</td>
+</tr>
+<tr>
+<td align="left">proposal</td>
+<td align="left">SignedProposal</td>
+<td align="left">signed transaction proposal</td>
+<td align="center">yes</td>
+<td align="left">contains the transaction proposal to simulate</td>
+</tr>
+<tr>
+<td align="left">chaincode_event</td>
+<td align="left">ChaincoodeEvent</td>
+<td align="left">chaincode event to be raised at commit time</td>
+<td align="center">yes</td>
+<td align="left">set by the chaincode shim if events need to be raised</td>
+</tr>
+<tr>
+<td align="left">channel_id</td>
+<td align="left">string</td>
+<td align="left">channel unique identifier</td>
+<td align="center">yes</td>
+<td align="left">specifies the channel the transaction belongs to</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The types <code>ChaincodeEvent</code> and <code>SignedProposal</code> are defined in the files <code>chaincoode_event.proto</code> and <code>proposal.proto</code> in the same repository.</p>
+</div>
+<h2 id="phase-1-initialisation">Phase 1: Initialisation</h2>
+<h3 id="peer-initialisation">Peer Initialisation</h3>
+<p>The peer node is made up by several sub-systems that collectively provide services to the Hyperledger Fabric network (see: <a href="../../peer-architecture/">Peer Architecture</a> for more details). In this context we focus on those components that are relevant to the interaction with the chaincode process. The following steps are executed:</p>
+<ul>
+<li><code>PlatformRegistry</code> initialisation: this component provide saccess to the chaincode builsing and launching services for supported stacks (i.e. golang, jvascript, java, ...).</li>
+<li><code>ChaincodeProvider</code> iniitialisation: this component provides access to the chaincode packaging capability (primarily transaction execution).</li>
+<li><code>ChaincodeSupport</code> initialisation: thhis component porivde access to the chaincode services at the peer level.</li>
+<li><code>ChaincodeSupportServer</code> initialisation: this component is the GRPC server that exposes the <code>ChaincodeSupport</code> service and accepts the connection from the chaincode processes.</li>
+<li><code>EndorserServer</code> initialisation: this component is the GRPC server that exposes the <code>EndorserSupport</code> service which receives transaction proposal for endorsement.</li>
+</ul>
+<p>The endorsement entails the execution of a transaction simulation in one of the connected chaincode processes.</p>
+<h3 id="shim-initialisation">Shim Initialisation</h3>
+<p>The driver process of the shim loads the chaincode by invoking <code>shim.Start(Chaincode)</code>. This method performs the following operations:</p>
+<ul>
+<li>GRPC client initialisation: this is used to connect to the peer and setup a bidirectional stream to exchange <code>ChaincodeMessage</code> instances.</li>
+<li><code>Handler</code> initialisation: this component is in charge of processing all the messages sent by the peer and execute the associate operations.</li>
+<li>Messaging processing loop initialisation: this message loop is used to receive the messages from the peer and dispatch them to the handler for further processing.</li>
+</ul>
+<p>This initialisation modality support the <em>chaincode-as-client</em> pattern, where the chaincode process is a client to the peer. The shim also has the capability to initialise itself to support the <em>chaincode_as_server</em> pattern, where the roles are reversed. This is done by initialising a new <a href="https://github.com/hyperledger/fabric-chaincode-go/blob/master/shim/chaincodeserver.go">ChaincodeServer</a> instance with the details of the chaincode and invoke the method <code>ChaincodeServer.Start()</code>.</p>
+<h2 id="phase-2-communication-setup">Phase 2: Communication Setup</h2>
+<ul>
+<li>Before starting the messaging processing loop the shim sends a <code>REGISTER</code> message through the bidirectional stream opened with the peer. This message contains the details of the chaincode to register codified as a <code>ChaincodeID</code> in the payload.</li>
+<li>Upon reception of the message, the peer validates the information associated to the chaincode and allocates an <code>Handler</code> instance to manage the message exchange with the chaincode process.</li>
+<li>The peer then responds with a <code>REGISTERED</code> message and immediately after with a <code>READY</code> message, signaling the completion of the setup process.</li>
+</ul>
+<p>The figure below shows the exchange of messages during the setup phase, with reference to the chaincode shim implemented in Go.</p>
+<figure class="figure-image">
+  <img src="../../images/protocol-setup.png" alt="Message Exchange During Setup Phase">
+  <figcaption>Message Exchange During Setup Phase</figcaption>
+</figure>
+
+<h2 id="phase-3-transaction-execution">Phase 3: Transaction Execution</h2>
+<p>Once the setup phase is complete the chaincode and peer are ready to run transactions. From this point onward the interaction is driven by the peer, as a result of the operations that are submitted ted by the application clients to the peer. These usually involve the deployment of the chaincode onto a specific channel and the subsequent invocation of transactions on the deployed smart contract.</p>
+<p>This interaction is implemented in the following steps:</p>
+<ul>
+<li>As a result of a chaincode deployment, the peer sends an <code>INIT</code> message. This operation is triggered by the invocation of the <code>ChaincodeSupport.InvokeInit(...)</code> method, which calls the <code>Handler.Execute(...)</code> method on the instance that is mapped to the chaincode being invoked. The handle initialises a Transaction Context for the simulation of the transaction proposal associated to the initialisation and sends the message through bidirectional stream.</li>
+<li>Upon reception of the <code>INIT</code> message the message receiving loop dispatches the message to the <code>Handler</code>. This in turn creates a new <code>ChaincodeStub</code> instance, which represents the interface to the peer services exposed to the smart contract, and invokes <code>Chaincode.Init(...)</code> by passing the stub as argument. This invocation is executed in a separate go-routine, thus preventing the chaincode from blocking the message receiving loop.</li>
+<li>The chaincode executes the initialisation of the initialisation of the smart contract and the <code>Init(...)</code> method completes either successfully or with an error. The former causes a <code>COMPLETED</code> message to be sent back to the peer, while the latter triggers an <code>ERROR</code> message.</li>
+<li>Upon reception of the message, the message receiving loop of the peer invokes the <code>Handler.Notify(...)</code> method on the instance associated to the chaincode process. This method closes the previously open transaction context and causes the <code>Handler.Execute(...)</code> method to unblock and return the response obtained by the chaincode to the caller.</li>
+</ul>
+<p>Subsequent invocations of the same chaincode in the same channel, result in the peer sending a <code>TRANSACTION</code> message, which is handled in the same manner as detailed for the <code>INIT</code> message. The figure below summarises the interactions among components that happens both within the peer and the chaincode shim.</p>
+<p>Occasionally, and if configured to do so, the peer sends <code>KEEP_ALIVE</code> messages that the chaincode process simply replies to, to ensure that the shim is still alive. This is particularly relevant in a deployment where the transactions are infrequent.</p>
+<figure class="figure-image">
+  <img src="../../images/protocol-run.png" alt="Message Exchange During Run Phase">
+  <figcaption>Message Exchange During Run Phase</figcaption>
+</figure>
+
+<p>The processing of an <code>INIT</code> or <code>TRANSACTION</code> message, may require the chaincode process to access the ledger or invoke another chaincode onto the same peer. This results in one or more messages sent back to the peer within the context of the communication established by the <code>INIT</code> or <code>TRANSACTION</code> message. The figure below shows how the previous interaction changes in case of talk-backs.</p>
+<figure class="figure-image">
+  <img src="../../images/protocol-run-callback.png" alt="Message Exchange During Run Phase with Callbacks">
+  <figcaption>Message Exchange During Run Phase with Callbacks</figcaption>
+</figure>
+
+<p>The communication back to the peer is exercised by invoking one of the methods exposed by the <code>ChaincodeStubInterface</code> and implemented in the <code>ChaincodeStub</code>. For those methods that require a talk back the <code>Handler</code> sets up a <em>response channel</em> which is used by the current go-routine processing the original <code>INIT</code> or <code>TRANSACTION</code> method to send the message to the peer and wait for the response.  The specific type and payload of the message sent to the peer depends upon the method that has been invoked on the stub (for more details see the <a href="../messages/">Message Types</a> section).</p>
+<p>On the peer side, when the message is received the corresponding operation is performed and the result is sent back through a <code>RESPONSE</code> (or <code>ERROR</code>) message. This message is picked up by the message receiving loop of the chaincode shim, which dispatches it to the <code>Handleer</code>. By using the information in the message, the handler selects the associated response channel and sends the message through it, thus unblocking the waiting go-routine that can now continue its processing with the received results.</p>
+<p>The figure shows only one communication back to the peer, but this process can be executed multiple times. One for any invocation on the <code>ChaincodeStubInterface</code> that requires talking back to the peer. Once the smart contract has completed the processing a <code>COMPLETED</code> (or <code>ERROR</code>) message willn be sent back to the peer, thus terminating the transaction simulation.</p>
+                
+                  
+                    
+
+<hr>
+<div class="md-source-date">
+  <small>
+    
+      Last update: <span class="git-revision-date-localized-plugin git-revision-date-localized-plugin-datetime">April 15, 2020 13:57:25</span>
+    
+  </small>
+</div>
+                  
+                
+              
+              
+                
+
+
+              
+            </article>
+          </div>
+        </div>
+      </main>
+      
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
+        
+          <a href="../architecture-components/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
+            </div>
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
+                Key Components
+              </div>
+            </div>
+          </a>
+        
+        
+          <a href="../messages/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Messages Exchanged
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        Made with
+        <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+          Material for MkDocs
+        </a>
+      </div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    
+      <script src="../../assets/javascripts/vendor.53cc9318.min.js"></script>
+      <script src="../../assets/javascripts/bundle.e9c9f54f.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
+      
+      <script>
+        app = initialize({
+          base: "../..",
+          features: [],
+          search: Object.assign({
+            worker: "../../assets/javascripts/worker/search.9c0e82ba.min.js"
+          }, typeof search !== "undefined" && search)
+        })
+      </script>
+      
+    
+  </body>
+</html>
